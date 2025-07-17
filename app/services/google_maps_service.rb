@@ -34,7 +34,8 @@ class GoogleMapsService
           {
             start_address: format_location(leg['startLocation']),
             end_address: format_location(leg['endLocation']),
-            distance: { value: leg['distanceMeters'], text: "#{(leg['distanceMeters'] / 1609.34).round(1)} mi" },
+            distance: { value: leg['distanceMeters'],
+text: "#{(leg['distanceMeters'] / 1609.34).round(1)} mi" },
             duration: { value: leg['duration'], text: format_duration(leg['duration']) }
           }
         end
@@ -48,7 +49,16 @@ class GoogleMapsService
     headers = {
       'Content-Type' => 'application/json',
       'X-Goog-Api-Key' => @api_key,
-      'X-Goog-FieldMask' => 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.steps,routes.legs.startLocation,routes.legs.endLocation,routes.legs.distanceMeters,routes.legs.duration'
+      'X-Goog-FieldMask' => [
+        'routes.duration',
+        'routes.distanceMeters',
+        'routes.polyline.encodedPolyline',
+        'routes.legs.steps',
+        'routes.legs.startLocation',
+        'routes.legs.endLocation',
+        'routes.legs.distanceMeters',
+        'routes.legs.duration'
+      ].join(',')
     }
 
     body = {

@@ -10,6 +10,6 @@ class CreateTrips < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :trips, [:origin, :destination]
+    add_index :trips, [ :origin, :destination ]
   end
 end

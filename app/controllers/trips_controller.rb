@@ -1,6 +1,6 @@
 class TripsController < ApplicationController
   before_action :set_google_maps_api_key
-  skip_before_action :verify_authenticity_token, only: [:calculate_route]
+  skip_before_action :verify_authenticity_token, only: [ :calculate_route ]
 
   def index
     @trip = Trip.new
@@ -31,7 +31,8 @@ class TripsController < ApplicationController
                 trip: {
                   id: @trip.id,
                   total_distance_miles: @trip.total_distance_miles.round(2),
-                  state_distances_miles: @trip.state_distances_miles.transform_values { |v| v.round(2) },
+                  state_distances_miles: @trip.state_distances_miles.transform_values { |v|
+ v.round(2) },
                   route_data: @trip.route_data
                 }
               }
@@ -41,7 +42,8 @@ class TripsController < ApplicationController
           respond_to do |format|
             format.html {
               @recent_trips = Trip.order(created_at: :desc).limit(10)
-              redirect_to trips_path, alert: 'No se pudo calcular la ruta. Verifica las direcciones ingresadas.'
+              redirect_to trips_path,
+alert: 'No se pudo calcular la ruta. Verifica las direcciones ingresadas.'
             }
             format.json {
               render json: {
@@ -56,7 +58,8 @@ class TripsController < ApplicationController
         respond_to do |format|
           format.html {
             @recent_trips = Trip.order(created_at: :desc).limit(10)
-            redirect_to trips_path, alert: 'Error interno del servidor. Verifica tu API key de Google Maps.'
+            redirect_to trips_path,
+alert: 'Error interno del servidor. Verifica tu API key de Google Maps.'
           }
           format.json {
             render json: {
