@@ -34,19 +34,19 @@ console.log('Elementos gm-style encontrados:', gmStyleElements.length);
 // Intentar crear un mapa manualmente
 if (typeof google !== 'undefined' && google.maps && mapContainer) {
   console.log('Intentando crear mapa manualmente...');
-  
+
   try {
     const testMap = new google.maps.Map(mapContainer, {
       zoom: 6,
       center: { lat: 39.8283, lng: -98.5795 }
     });
-    
+
     const testMarker = new google.maps.Marker({
       position: { lat: 39.8283, lng: -98.5795 },
       map: testMap,
       title: 'Prueba manual'
     });
-    
+
     console.log('Mapa manual creado exitosamente');
   } catch (error) {
     console.error('Error creando mapa manual:', error);

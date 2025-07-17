@@ -2,21 +2,21 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["form", "resultsContainer", "mapContainer", "resultsTable"]
-  static values = { 
+  static values = {
     apiKey: String,
     tripData: Object
   }
 
   connect() {
     console.log('Maps controller connected')
-    
+
     // Dar tiempo a que el DOM se estabilice antes de inicializar
     setTimeout(() => {
       this.initializeGoogleMaps()
-      
+
       // Siempre mostrar un mapa básico al cargar
       this.showBasicMap()
-      
+
       // Si hay datos de trip al cargar, mostrar el mapa con la ruta
       if (this.hasTripDataValue && this.tripDataValue.route_data) {
         console.log('Found trip data on connect, displaying results')
@@ -27,12 +27,12 @@ export default class extends Controller {
 
   showBasicMap() {
     console.log('Showing basic map...')
-    
+
     // Crear datos de prueba sin ruta
     const basicData = {
       route_data: null
     }
-    
+
     // Dar tiempo para que el DOM se estabilice
     setTimeout(() => {
       this.initializeMap(basicData)
@@ -44,7 +44,7 @@ export default class extends Controller {
     if (window.initMap) {
       delete window.initMap
     }
-    
+
     // Limpiar la promesa de carga si existe
     if (window.googleMapsLoading) {
       delete window.googleMapsLoading
@@ -66,12 +66,12 @@ export default class extends Controller {
     }
 
     console.log('Loading Google Maps...')
-    
+
     // Crear una promesa para la carga
     window.googleMapsLoading = new Promise((resolve, reject) => {
       // Limpiar cualquier callback anterior
       delete window.initMap
-      
+
       window.initMap = () => {
         console.log('Google Maps loaded via callback')
         this.mapsLoaded = true
@@ -95,7 +95,7 @@ export default class extends Controller {
         delete window.googleMapsLoading
         reject(new Error('Failed to load Google Maps'))
       }
-      
+
       console.log('Appending Google Maps script to head')
       document.head.appendChild(script)
     })
@@ -105,7 +105,7 @@ export default class extends Controller {
 
   async calculateRoute(event) {
     event.preventDefault()
-    
+
     const formData = new FormData(this.formTarget)
     const origin = formData.get('trip[origin]')
     const destination = formData.get('trip[destination]')
@@ -165,7 +165,7 @@ export default class extends Controller {
     console.log('Displaying results with tripData:', tripData)
     this.showResultsContainer()
     this.updateResultsTable(tripData)
-    
+
     // Dar tiempo para que el contenedor se muestre antes de inicializar el mapa
     setTimeout(() => {
       this.initializeMap(tripData)
@@ -199,24 +199,24 @@ export default class extends Controller {
 
   async initializeMap(tripData) {
     console.log('Initializing map with tripData:', tripData)
-    
+
     // Verificar que el contenedor del mapa esté en el DOM
     if (!this.mapContainerTarget) {
       console.error('Map container not found')
       return
     }
-    
+
     // Verificar que el contenedor tenga dimensiones
     const rect = this.mapContainerTarget.getBoundingClientRect()
     console.log('Map container dimensions:', rect.width, 'x', rect.height)
-    
+
     if (rect.width === 0 || rect.height === 0) {
       console.warn('Map container has zero dimensions')
       // Forzar dimensiones mínimas si es necesario
       this.mapContainerTarget.style.minHeight = '384px'
       this.mapContainerTarget.style.minWidth = '100%'
     }
-    
+
     // Esperar a que Google Maps esté cargado
     try {
       await this.initializeGoogleMaps()
@@ -230,7 +230,7 @@ export default class extends Controller {
     this.mapContainerTarget.innerHTML = ''
 
     console.log('Creating map...')
-    
+
     // Crear el mapa con configuración básica
     const map = new google.maps.Map(this.mapContainerTarget, {
       zoom: 6,
@@ -240,12 +240,12 @@ export default class extends Controller {
       fullscreenControl: true,
       gestureHandling: 'cooperative'
     })
-    
+
     console.log('Map created successfully')
-    
+
     // Almacenar la referencia al mapa para uso posterior
     this.map = map
-    
+
     // Agregar un marcador de prueba inmediatamente
     const testMarker = new google.maps.Marker({
       position: { lat: 39.8283, lng: -98.5795 },
@@ -256,21 +256,21 @@ export default class extends Controller {
         scaledSize: new google.maps.Size(32, 32)
       }
     })
-    
+
     console.log('Test marker added')
-    
+
     // Forzar resize del mapa después de varios delays
     setTimeout(() => {
       console.log('First resize trigger')
       google.maps.event.trigger(map, 'resize')
       map.setCenter({ lat: 39.8283, lng: -98.5795 })
     }, 100)
-    
+
     setTimeout(() => {
       console.log('Second resize trigger')
       google.maps.event.trigger(map, 'resize')
     }, 500)
-    
+
     setTimeout(() => {
       console.log('Third resize trigger')
       google.maps.event.trigger(map, 'resize')
@@ -284,14 +284,14 @@ export default class extends Controller {
       console.log('No route data available, showing test marker only')
     }
   }
-  
+
   processRouteData(map, tripData, testMarker) {
     console.log('Route data available:', tripData.route_data)
-    
+
     // Usar el polyline directamente para mostrar la ruta
     try {
       const decodedPath = google.maps.geometry.encoding.decodePath(tripData.route_data.polyline)
-      
+
       const polyline = new google.maps.Polyline({
         path: decodedPath,
         geodesic: true,
@@ -299,22 +299,22 @@ export default class extends Controller {
         strokeOpacity: 0.8,
         strokeWeight: 4
       })
-      
+
       polyline.setMap(map)
       console.log('Polyline rendered successfully')
-      
+
       // Remover el marcador de prueba
       testMarker.setMap(null)
-      
+
       // Agregar marcadores para el inicio y fin
       const legs = tripData.route_data.legs
       const startAddress = legs[0].start_address
       const endAddress = legs[legs.length - 1].end_address
-      
+
       // Obtener las coordenadas del polyline para los marcadores
       const startLatLng = decodedPath[0]
       const endLatLng = decodedPath[decodedPath.length - 1]
-      
+
       // Usar marcadores clásicos
       const startMarker = new google.maps.Marker({
         position: startLatLng,
@@ -325,7 +325,7 @@ export default class extends Controller {
           scaledSize: new google.maps.Size(32, 32)
         }
       })
-      
+
       const endMarker = new google.maps.Marker({
         position: endLatLng,
         map: map,
@@ -335,22 +335,22 @@ export default class extends Controller {
           scaledSize: new google.maps.Size(32, 32)
         }
       })
-      
+
       console.log('Route markers created successfully')
-      
+
       // Ajustar el zoom para mostrar toda la ruta
       const bounds = new google.maps.LatLngBounds()
       decodedPath.forEach(point => bounds.extend(point))
       map.fitBounds(bounds)
-      
+
       // Agregar un pequeño padding
       setTimeout(() => {
         map.panBy(0, -50)
       }, 100)
-      
+
     } catch (error) {
       console.error('Error processing route data:', error)
-      
+
       // Fallback: hacer una nueva solicitud a la API de Google
       this.fallbackToDirectionsAPI(map, tripData)
     }
@@ -368,18 +368,18 @@ export default class extends Controller {
     })
 
     directionsRenderer.setMap(map)
-    
+
     const legs = tripData.route_data.legs
     const originAddress = legs[0].start_address
     const destinationAddress = legs[legs.length - 1].end_address
-    
+
     console.log('Fallback: Making new directions request')
     console.log('Origin:', originAddress, 'Destination:', destinationAddress)
-    
+
     // Convertir coordenadas a direcciones más legibles si es necesario
     let origin = originAddress
     let destination = destinationAddress
-    
+
     // Si las direcciones son coordenadas, usar las entradas originales del formulario
     if (originAddress.includes(',') && originAddress.match(/^[\d\.\-\s,]+$/)) {
       origin = this.lastOriginInput || originAddress
@@ -387,7 +387,7 @@ export default class extends Controller {
     if (destinationAddress.includes(',') && destinationAddress.match(/^[\d\.\-\s,]+$/)) {
       destination = this.lastDestinationInput || destinationAddress
     }
-    
+
     const request = {
       origin: origin,
       destination: destination,
@@ -396,10 +396,10 @@ export default class extends Controller {
     }
 
     console.log('Making directions request:', request)
-    
+
     directionsService.route(request, (result, status) => {
       console.log('Directions result:', result, 'Status:', status)
-      
+
       if (status === 'OK') {
         directionsRenderer.setDirections(result)
         console.log('Route rendered successfully')
@@ -423,7 +423,7 @@ export default class extends Controller {
   }
 
   showLoading() {
-    const submitButton = this.formTarget.querySelector('button[type="submit"]') || 
+    const submitButton = this.formTarget.querySelector('button[type="submit"]') ||
                         this.formTarget.querySelector('input[type="submit"]')
     if (submitButton) {
       submitButton.disabled = true
@@ -432,7 +432,7 @@ export default class extends Controller {
   }
 
   hideLoading() {
-    const submitButton = this.formTarget.querySelector('button[type="submit"]') || 
+    const submitButton = this.formTarget.querySelector('button[type="submit"]') ||
                         this.formTarget.querySelector('input[type="submit"]')
     if (submitButton) {
       submitButton.disabled = false
@@ -450,7 +450,7 @@ export default class extends Controller {
       this.formTarget.parentNode.insertBefore(errorDiv, this.formTarget)
     }
     errorDiv.textContent = message
-    
+
     // Auto-hide después de 5 segundos
     setTimeout(() => {
       if (errorDiv) {

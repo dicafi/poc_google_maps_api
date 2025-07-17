@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "trips#index"
-  
+
   resources :trips, only: [:index, :create] do
     collection do
       post 'calculate_route'
