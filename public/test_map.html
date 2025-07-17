@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Map</title>
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Map</h1>
+    <div id="map"></div>
+    
+    <script>
+        function initMap() {
+            console.log('Google Maps loaded successfully');
+            
+            const map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 6,
+                center: { lat: 39.8283, lng: -98.5795 }
+            });
+            
+            const marker = new google.maps.Marker({
+                position: { lat: 39.8283, lng: -98.5795 },
+                map: map,
+                title: 'Test Marker'
+            });
+            
+            console.log('Map and marker created successfully');
+        }
+    </script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFZ9YpKygc38WAPm_C6zGMgIWdq-9U95E&callback=initMap&libraries=geometry&loading=async" async defer></script>
+</body>
+</html>
